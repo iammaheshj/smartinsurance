@@ -1,0 +1,30 @@
+{
+  "dev": {
+    "apigateway_description": "API for smart insurance using Zappa",
+    "app_function": "smart-insurance.app",
+    "aws_region": "us-east-1",
+    "project_name": "smart-insurance",
+    "runtime": "python2.7",
+    "s3_bucket": "smart-insurance",
+    "keep_warm": true,
+    "debug": true,
+    "log_level": "DEBUG",
+    "manage_roles": true,
+    "timeout_seconds": 300,
+    "memory_size": 128,
+    "use_precompiled_packages": true,
+    "exclude": [
+      "*.gz",
+      "*.rar",
+      ".tox",
+      ".cache",
+      "build",
+      "htmlcov",
+      "tests",
+      "env",
+      "egg-info"
+    ],
+    "aws_environment_variables": {
+    }
+  }
+}

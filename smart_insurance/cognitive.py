@@ -1,41 +1,22 @@
 ﻿import logging
 import boto3
-from flask import Flask, Response, json, request
+from flask import Response, json, request
+from smart_insurance import app
 
-app = Flask(__name__)
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-
-@app.route('/', methods=['GET', 'POST'])
-def root(event=None, context=None):
-    logger.info('root function invoked')
-    resp_dict = {}
-
-    if request.method == "GET" or request.method == "POST":
-        try:
-            resp_dict = {"result": "success", "response": "200"}
-            response = Response(json.dumps(resp_dict), 200)
-
-        except Exception as e:
-            logger.error("Error while calling root", e)
-            resp_dict = {"result": str(e), "response": "408"}
-            response = Response(json.dumps(resp_dict), 408)
-
-    logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
-    return response
 
 
 def __get_text_from_image(photo_path):
     text_detections = None
     try:
         client = boto3.client('rekognition')
-        print("Photo: ", photo_path)
+        logger.info("Photo: ", photo_path)
         response = client.detect_text(Image={'S3Object': {'Bucket': 'smart-insurance', 'Name': photo_path}})
         text_detections = response['TextDetections']
     except Exception as e:
-        print("Exception while detection text from image '{}' : {}".format(photo_path, str(e)))
+        logger.info("Exception while detection text from image '{}' : {}".format(photo_path, str(e)))
         raise Exception(str(e))
     return text_detections
 
@@ -49,7 +30,7 @@ def __insert_vehicle_info_into_dynamo(vehicle_info):
         }
         dynamodb.put_item(TableName='vehicle-info', Item=item)
     except Exception as e:
-        print("Exception while inserting item '{}' in dyanomodb : {}".format(item, str(e)))
+        logger.info("Exception while inserting item '{}' in dyanomodb : {}".format(item, str(e)))
         raise Exception(str(e))
 
 
@@ -70,8 +51,9 @@ def __get_vehicle_number_from_txt_detections(text_detections):
     return vehicle_num
 
 
-@app.route('/detect_number', methods=['GET'])
+@app.route('/cognitive/detect_number', methods=['GET'])
 def detect_text():
+    logger.info("[API] /cognitive/detect_number")
     vehicle_num = ''
     try:
         photo_path = request.args.get('photo_path')
@@ -79,15 +61,21 @@ def detect_text():
         text_detections = __get_text_from_image(photo_path)
         vehicle_num = __get_vehicle_number_from_txt_detections(text_detections)
 
-        resp_dict = {"vehicle_number": vehicle_num, "response": "200", "path": photo_path}
+        resp_dict = {"result":
+                         {"vehicle_number": vehicle_num,
+                          "path": photo_path},
+                     "response": "200"}
 
         # inserting data in dynamodb
         __insert_vehicle_info_into_dynamo(resp_dict)
 
         response = Response(json.dumps(resp_dict), 200)
     except Exception as e:
+        logger.error("Error while calling root", e)
         resp_dict = {"result": str(e), "response": "408"}
         response = Response(json.dumps(resp_dict), 408)
+
+    logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
 
     return response
 

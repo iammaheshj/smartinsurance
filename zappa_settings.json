@@ -10,9 +10,8 @@
     "debug": true,
     "log_level": "DEBUG",
     "manage_roles": true,
-    "timeout_seconds": 300,
+    "timeout_seconds": 29,
     "memory_size": 128,
-    "use_precompiled_packages": true,
     "exclude": [
       "*.gz",
       "*.rar",

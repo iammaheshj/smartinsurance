@@ -1,7 +1,7 @@
 {
   "dev": {
     "apigateway_description": "API for smart insurance using Zappa",
-    "app_function": "smart-insurance.app",
+    "app_function": "smart_insurance.app",
     "aws_region": "us-east-1",
     "project_name": "smart-insurance",
     "runtime": "python2.7",

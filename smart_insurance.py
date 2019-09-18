@@ -39,7 +39,7 @@ def get_vehicle_details(event=None, context=None):
         client = boto3.client('s3')
         logger.info('Getting file from S3')
         s3_obj = client.get_object(Bucket='smart-insurance', Key='images/cars/10037308.jpg')
-        resp_dict = {"result": str(s3_obj), "response": "200"}
+        resp_dict = {"result": "", "response": "200"}
         response = Response(json.dumps(resp_dict), 200)
 
     except Exception as e:

@@ -1,8 +1,6 @@
 ﻿import logging
 import boto3
-import requests
 from flask import Flask, Response, json, request
-from urllib3.util import timeout
 
 app = Flask(__name__)
 logging.basicConfig()
@@ -16,36 +14,16 @@ def root(event=None, context=None):
     resp_dict = {}
 
     if request.method == "GET" or request.method == "POST":
-        data = request.form
-        domain = data.get("domain", "")
-
         try:
-            result = requests.get(domain, timeout=timeout).elapsed.total_seconds()
-            resp_dict = {"result": result, "response": "200"}
+            resp_dict = {"result": "success", "response": "200"}
             response = Response(json.dumps(resp_dict), 200)
 
         except Exception as e:
+            logger.error("Error while calling root", e)
             resp_dict = {"result": str(e), "response": "408"}
             response = Response(json.dumps(resp_dict), 408)
 
-    return response
-
-
-@app.route('/vehicles', methods=['GET'])
-def get_vehicle_details(event=None, context=None):
-    logger.info('Lambda function invoked')
-    resp_dict = {}
-    try:
-        client = boto3.client('s3')
-        logger.info('Getting file from S3')
-        s3_obj = client.get_object(Bucket='smart-insurance', Key='images/cars/10037308.jpg')
-        resp_dict = {"result": "", "response": "200"}
-        response = Response(json.dumps(resp_dict), 200)
-
-    except Exception as e:
-        resp_dict = {"result": str(e), "response": "408"}
-        response = Response(json.dumps(resp_dict), 408)
-
+    logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
     return response
 
 

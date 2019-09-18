@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@app.route('/vehicle/vin/<vin>', methods=['GET'])
-def get_vehicle_details_by_vin(vin):
+@app.route('/experian/vehicle/vin/<vin>', methods=['GET'])
+def get_expvehicle_details_by_vin(vin):
     logger.info('[API] /vehicle/vin/<vin>')
     resp_dict = {}
 

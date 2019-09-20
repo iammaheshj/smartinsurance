@@ -83,7 +83,7 @@ def detect_text():
 
 
 @app.route('/cognitive/detectvehicle/<vehicle_key>', methods=['GET'])
-def detect_car(vehicle_key):
+def detect_vehicle(vehicle_key):
     logger.info('[API] /cognitive/detectvehicle/{}'.format(vehicle_key))
     resp_dict = {}
 
@@ -109,9 +109,21 @@ def detect_car(vehicle_key):
             ).text)
         logger.info('Carnet response: {}'.format(json.dumps(response, indent=4, sort_keys=True)))
 
-        resp_dict = {"result": response, "response": "200"}
-        response = Response(json.dumps(resp_dict), 200)
+        if response['is_success']:
+            detections = response['detections']
+            max_prob_vahicles = []
+            for d in detections:
+                max_prob = max(p['prob'] for p in d['mmg'])
+                for v in d['mmg']:
+                    if v['prob'] == max_prob:
+                        max_prob_vahicles.append(v)
+                        break
 
+            resp_dict = {"result": max_prob_vahicles, "response": "200"}
+            response = Response(json.dumps(resp_dict), 200)
+        else:
+            resp_dict = {"result": response, "response": "400"}
+            response = Response(json.dumps(resp_dict), 400)
     except Exception as e:
         logger.exception("Error while calling carnet detect car api: (%s)", e)
         resp_dict = {"result": str(e), "response": "408"}

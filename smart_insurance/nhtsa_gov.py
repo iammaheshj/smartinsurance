@@ -26,7 +26,7 @@ def get_vehicle_details_by_vin(vin):
         response = Response(json.dumps(resp_dict), 200)
 
     except Exception as e:
-        logger.error("Error while calling root", e)
+        logger.exception("Error while calling root", e)
         resp_dict = {"result": str(e), "response": "408"}
         response = Response(json.dumps(resp_dict), 408)
 

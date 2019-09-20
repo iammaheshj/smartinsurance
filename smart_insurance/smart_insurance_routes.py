@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def root(event=None, context=None):
     logger.info('root function invoked')
     resp_dict = {}
@@ -18,7 +18,7 @@ def root(event=None, context=None):
             response = Response(json.dumps(resp_dict), 200)
 
         except Exception as e:
-            logger.error("Error while calling root", e)
+            logger.exception("Error while calling root", e)
             resp_dict = {"result": str(e), "response": "408"}
             response = Response(json.dumps(resp_dict), 408)
 

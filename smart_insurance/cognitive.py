@@ -1,5 +1,7 @@
 ﻿import logging
 import boto3
+import botocore
+import requests
 from flask import Response, json, request
 from smart_insurance import app
 
@@ -71,7 +73,47 @@ def detect_text():
 
         response = Response(json.dumps(resp_dict), 200)
     except Exception as e:
-        logger.error("Error while calling root", e)
+        logger.exception("Error while calling root", e)
+        resp_dict = {"result": str(e), "response": "408"}
+        response = Response(json.dumps(resp_dict), 408)
+
+    logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
+
+    return response
+
+
+@app.route('/cognitive/detectvehicle/<vehicle_key>', methods=['GET'])
+def detect_car(vehicle_key):
+    logger.info('[API] /cognitive/detectvehicle/{}'.format(vehicle_key))
+    resp_dict = {}
+
+    bucket = 'smart-insurance'
+    cars_dir = 'images/cars'
+    key = '{}/{}'.format(cars_dir, vehicle_key)
+    s3 = boto3.resource('s3')
+
+    try:
+        local_file_name = '/tmp/car.jpg'
+        logger.info('Downloading S3 file {} to {}'.format(key, local_file_name))
+        s3.Bucket(bucket).download_file(key, local_file_name)
+
+        logger.info('Calling carnet api to detect car')
+        with open(local_file_name, 'rb') as f:
+            response = json.loads(requests.post(
+                'http://api.carnet.ai/mmg/detect',
+                data=f.read(),
+                headers={
+                    'api-key': '0814ab56-ad9e-4241-83cb-f74f363a769c',
+                    'Content-Type': 'application/octet-stream'
+                },
+            ).text)
+        logger.info('Carnet response: {}'.format(json.dumps(response, indent=4, sort_keys=True)))
+
+        resp_dict = {"result": response, "response": "200"}
+        response = Response(json.dumps(resp_dict), 200)
+
+    except Exception as e:
+        logger.exception("Error while calling carnet detect car api: (%s)", e)
         resp_dict = {"result": str(e), "response": "408"}
         response = Response(json.dumps(resp_dict), 408)
 

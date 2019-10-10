@@ -9,6 +9,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 @app.route('/premium/get_premium', methods=['POST'])
 def __get_premium(car_type,
                   basic_value,
@@ -48,7 +49,7 @@ def __get_premium(car_type,
         if 2 <= accident_violation <= 5:
             discount = discount - 5
 
-        premium = base_premium - base_premium * discount/100
+        premium = base_premium - base_premium * discount / 100
 
     except Exception as e:
         logger.exception("Error while calculating premium: (%s)", e)

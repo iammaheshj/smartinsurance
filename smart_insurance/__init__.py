@@ -7,3 +7,4 @@ import smart_insurance_routes
 import cognitive
 import experian
 import vehicle
+import premium

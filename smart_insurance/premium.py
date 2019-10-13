@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@app.route('/premium/get_premium', methods=['POST'])
+@app.route('/premium', methods=['POST'])
 def __get_premium(vehicle_type,
                   basic_value,
                   miles_run,

@@ -1,6 +1,6 @@
 ﻿import logging
 import boto3
-import botocore
+import os
 import requests
 from flask import Response, json, request
 from smart_insurance import app
@@ -15,7 +15,8 @@ def __get_text_from_image(photo_path):
     try:
         client = boto3.client('rekognition')
         logger.info("Photo: ", photo_path)
-        response = client.detect_text(Image={'S3Object': {'Bucket': 'smart-insurance', 'Name': photo_path}})
+        bucket = os.environ.get('s3_bucket')
+        response = client.detect_text(Image={'S3Object': {'Bucket': bucket, 'Name': photo_path}})
         text_detections = response['TextDetections']
     except Exception as e:
         logger.info("Exception while detection text from image '{}' : {}".format(photo_path, str(e)))
@@ -55,6 +56,10 @@ def __get_vehicle_number_from_txt_detections(text_detections):
 
 @app.route('/cognitive/detect_number', methods=['GET'])
 def detect_text():
+    """
+    Detects Vehicle number plate number from vehicle image
+    :return: vehicle plate number
+    """
     logger.info("[API] /cognitive/detect_number")
     vehicle_num = ''
     try:
@@ -84,10 +89,17 @@ def detect_text():
 
 @app.route('/cognitive/detectvehicle/<vehicle_key>', methods=['GET'])
 def detect_vehicle(vehicle_key):
+    """
+    https://carnet.ai/
+    Detects cars details like make and model from the car image provided
+    Example API: https://5xs1vpigp8.execute-api.us-east-1.amazonaws.com/dev/cognitive/detectvehicle/Honda-Accord-Review.jpg
+    :param vehicle_key: string
+    :return: probable vehicle make and model
+    """
     logger.info('[API] /cognitive/detectvehicle/{}'.format(vehicle_key))
     resp_dict = {}
 
-    bucket = 'smart-insurance'
+    bucket = os.environ.get('s3_bucket')
     cars_dir = 'images/cars'
     key = '{}/{}'.format(cars_dir, vehicle_key)
     s3 = boto3.resource('s3')
@@ -109,7 +121,7 @@ def detect_vehicle(vehicle_key):
             ).text)
         logger.info('Carnet response: {}'.format(json.dumps(response, indent=4, sort_keys=True)))
 
-        if response['is_success']:
+        if 'is_success' in response and response['is_success']:
             detections = response['detections']
             max_prob_vahicles = []
             for d in detections:

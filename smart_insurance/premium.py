@@ -11,20 +11,20 @@ logger.setLevel(logging.DEBUG)
 
 
 @app.route('/premium', methods=['POST'])
-def __get_premium(vehicle_type,
-                  basic_value,
-                  miles_run,
-                  garage_condition,
-                  has_anti_theft,
-                  has_multi_policy,
-                  has_multi_car,
-                  has_driver_training,
-                  accident_violation,
-                  vehicle_number,
-                  vin_number,
-                  vehicle_owner,
-                  vehicle_image_path
-                  ):
+def get_premium(vehicle_type,
+                basic_value,
+                miles_run,
+                garage_condition,
+                has_anti_theft,
+                has_multi_policy,
+                has_multi_car,
+                has_driver_training,
+                accident_violation,
+                vehicle_number,
+                vin_number,
+                vehicle_owner,
+                vehicle_image_path
+                ):
     premium = None
     discount = None
 

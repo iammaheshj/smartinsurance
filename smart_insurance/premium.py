@@ -11,24 +11,27 @@ logger.setLevel(logging.DEBUG)
 
 
 @app.route('/premium', methods=['POST'])
-def get_premium(vehicle_type,
-                basic_value,
-                miles_run,
-                garage_condition,
-                has_anti_theft,
-                has_multi_policy,
-                has_multi_car,
-                has_driver_training,
-                accident_violation,
-                vehicle_number,
-                vin_number,
-                vehicle_owner,
-                vehicle_image_path
-                ):
-    premium = None
-    discount = None
-
+def get_premium():
     try:
+        data = request.form
+
+        vehicle_type = data.get("vehicle_type", "Unknown")
+        basic_value = data.get("basic_value", 0)
+        miles_run = data.get("miles_run", 0)
+        garage_condition = data.get("garage_condition", "Bad")
+        has_anti_theft = data.get("has_anti_theft", "false")
+        has_multi_policy = data.get("has_multi_policy", "false")
+        has_multi_car = data.get("has_multi_car", "false")
+        has_driver_training = data.get("has_driver_training", "false")
+        accident_violation = data.get("accident_violation", 0)
+        vehicle_number = data.get("vehicle_number", "Unknown")
+        vin_number = data.get("vin_number", "Unknown")
+        vehicle_owner = data.get("vehicle_owner", "Unknown")
+        vehicle_image_path = data.get("vehicle_image_path", "Unknown")
+
+        premium = None
+        discount = None
+
         base_premium = 0.01 * basic_value
 
         if miles_run < 5000:
@@ -56,25 +59,27 @@ def get_premium(vehicle_type,
 
         premium = base_premium - base_premium * discount / 100
 
-        vehicle_info = {"result":
-                            {"vehicle_type": vehicle_type,
-                             "basic_value": basic_value,
-                             "miles_run": miles_run,
-                             "garage_condition": garage_condition,
-                             "has_anti_theft": has_anti_theft,
-                             "has_multi_policy": has_multi_policy,
-                             "has_multi_car": has_multi_car,
-                             "has_driver_training": has_driver_training,
-                             "accident_violation": accident_violation,
-                             "vehicle_number": vehicle_number,
-                             "vin_number": vin_number,
-                             "vehicle_owner": vehicle_owner,
-                             "vehicle_image_path": vehicle_image_path,
-                             "premium": premium},
-                        "response": "200"}
+        resp_dict = {"result":
+                         {"vehicle_type": vehicle_type,
+                          "basic_value": basic_value,
+                          "miles_run": miles_run,
+                          "garage_condition": garage_condition,
+                          "has_anti_theft": has_anti_theft,
+                          "has_multi_policy": has_multi_policy,
+                          "has_multi_car": has_multi_car,
+                          "has_driver_training": has_driver_training,
+                          "accident_violation": accident_violation,
+                          "vehicle_number": vehicle_number,
+                          "vin_number": vin_number,
+                          "vehicle_owner": vehicle_owner,
+                          "vehicle_image_path": vehicle_image_path,
+                          "premium": premium},
+                     "response": "200"}
 
         # inserting data in dynamo db
-        __insert_vehicle_info_into_dynamo(vehicle_info)
+        __insert_vehicle_info_into_dynamo(resp_dict)
+
+        response = Response(json.dumps(resp_dict), 200)
 
     except Exception as e:
         logger.exception("Error while calculating premium: (%s)", e)
@@ -83,7 +88,8 @@ def get_premium(vehicle_type,
 
     logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
 
-    return premium
+    response = Response(json.dumps(resp_dict), 200)
+    return response
 
 
 def __insert_vehicle_info_into_dynamo(vehicle_info):

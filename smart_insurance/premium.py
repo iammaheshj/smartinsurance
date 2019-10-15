@@ -1,7 +1,5 @@
 import logging
 import boto3
-import botocore
-import requests
 from flask import Response, json, request
 from smart_insurance import app
 
@@ -60,25 +58,25 @@ def get_premium():
         premium = base_premium - base_premium * discount / 100
 
         vehicle_info = {"detail": {
-                "vehicle_type": vehicle_type,
-                "basic_value": basic_value,
-                "miles_run": miles_run,
-                "garage_condition": garage_condition,
-                "has_anti_theft": has_anti_theft,
-                "has_multi_policy": has_multi_policy,
-                "has_multi_car": has_multi_car,
-                "has_driver_training": has_driver_training,
-                "accident_violation": accident_violation,
-                "vehicle_number": vehicle_number,
-                "vin_number": vin_number,
-                "vehicle_owner": vehicle_owner,
-                "vehicle_image_path": vehicle_image_path
-                },
-                "calculated": {
-                    "discount": discount,
-                    "premium": premium
-                }
+            "vehicle_type": vehicle_type,
+            "basic_value": basic_value,
+            "miles_run": miles_run,
+            "garage_condition": garage_condition,
+            "has_anti_theft": has_anti_theft,
+            "has_multi_policy": has_multi_policy,
+            "has_multi_car": has_multi_car,
+            "has_driver_training": has_driver_training,
+            "accident_violation": accident_violation,
+            "vehicle_number": vehicle_number,
+            "vin_number": vin_number,
+            "vehicle_owner": vehicle_owner,
+            "vehicle_image_path": vehicle_image_path
+        },
+            "calculated": {
+                "discount": discount,
+                "premium": premium
             }
+        }
 
         resp_dict = {"result":
                          {"vehicle_info": vehicle_info},
@@ -96,7 +94,6 @@ def get_premium():
 
     logger.info(json.dumps(resp_dict, indent=4, sort_keys=True))
 
-    response = Response(json.dumps(resp_dict), 200)
     return response
 
 

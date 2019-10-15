@@ -24,7 +24,7 @@
       "egg-info"
     ],
     "aws_environment_variables": {
-      "s3_bucket": "smart_insurance",
+      "s3_bucket": "smart-insurance",
       "x_rapidapi_key": "df8bb8ce43msh98337e6ab1fceb4p1632e8jsn14a6ce0d3d82"
     }
   }
